@@ -1,0 +1,189 @@
+
+/* Top level module of simple SoC based on picorv32
+
+It includes:
+     * the picorv32 core
+     * An 8192 byte SRAM which is initialzed within the Verilog.
+     * A module to read/write LEDs on the Gowin Tang Nano 9K
+     * A wrapped version of the UART from picorv32's picosoc.
+     * A 32-bit count down timer.
+  
+Built and tested with the Gowin Eductional tool set on Tang Nano 9K.
+
+The picorv32 core has a very simple memory interface.
+See https://github.com/YosysHQ/picorv32
+
+In this SoC, slave (target) device has signals:
+
+   * SLAVE_sel - this is asserted when mem_valid == 1 and mem_addr targets the slave.
+     It "tells" the slave that it is active.  It must accept a write for provide data
+     for a read.
+   * SLAVE_ready - this is asserted by the slave when it is done with the transaction.
+     Core signal mem_ready is the OR of all of the SLAVE_ready signals.
+   * Core mem_addr, mem_wdata, and mem_wstrb can be passed to all slaves directly.
+     The latter is a byte lane enable for writes.
+   * Each slave drives SLAVE_data_o.  The core's mem_rdata is formed by selecting the
+     correct SLAVE_data_o based on SLAVE_sel.
+*/
+
+module top (
+            input wire        clk_in,
+            input wire        reset_button_n,
+            input wire        uart_rx,
+            output wire       uart_tx,
+            output wire [5:0] leds,
+
+            // board pins
+            output wire [2:0] pins
+);
+
+   // This include gets SRAM_ADDR_WIDTH from software build process
+   `include "sram_addr_width.v"
+
+   parameter        BARREL_SHIFTER = 0;
+   parameter        ENABLE_MUL = 0;
+   parameter        ENABLE_DIV = 0;
+   parameter        ENABLE_FAST_MUL = 0;
+   parameter        ENABLE_COMPRESSED = 0;
+   parameter        ENABLE_IRQ_QREGS = 0;
+
+   parameter        MEMBYTES = 4*(1 << SRAM_ADDR_WIDTH); 
+   parameter [31:0] STACKADDR = (MEMBYTES);         // Grows down.  Software should set it.
+   parameter [31:0] PROGADDR_RESET = 32'h0000_0000;
+   parameter [31:0] PROGADDR_IRQ = 32'h0000_0000;
+
+   wire                       reset_n; 
+   wire                       mem_valid;
+   wire                       mem_instr;
+   wire [31:0]                mem_addr;
+   wire [31:0]                mem_wdata;
+   wire [31:0]                mem_rdata;
+   wire [3:0]                 mem_wstrb;
+   wire                       mem_ready;
+   wire                       mem_inst;
+   wire                       leds_sel;
+   wire                       leds_ready;
+   wire [31:0]                leds_data_o;
+   wire                       sram_sel;
+   wire                       sram_ready;
+   wire [31:0]                sram_data_o;
+   wire                       cdt_sel;
+   wire                       cdt_ready;
+   wire [31:0]                cdt_data_o;
+   wire                       uart_sel;
+   wire [31:0]                uart_data_o;
+   wire                       uart_ready;
+
+   // Reduce clock from 27 to 5 MHz to help Gowin Analysis Oscilloscope
+   Gowin_rPLL pll (
+      .clkout(clk), //output clkout
+      .clkin(clk_in) //input clkin
+   );
+
+   // Establish memory map for all slaves:
+   //   SRAM 00000000 - 0001ffff
+   //   LED  80000000
+   //   UART 80000008 - 8000000f
+   //   CDT  80000010 - 80000014
+   assign sram_sel = mem_valid && (mem_addr < MEMBYTES);
+   assign leds_sel = mem_valid && (mem_addr == 32'h80000000);
+   assign uart_sel = mem_valid && ((mem_addr & 32'hfffffff8) == 32'h80000008);
+   assign cdt_sel = mem_valid && (mem_addr == 32'h80000010);
+
+   // Core can proceed regardless of *which* slave was targetted and is now ready.
+   assign mem_ready = mem_valid & (sram_ready | leds_ready | uart_ready | cdt_ready);
+
+
+   // Select which slave's output data is to be fed to core.
+   assign mem_rdata = sram_sel ? sram_data_o :
+                      leds_sel ? leds_data_o :
+                      uart_sel ? uart_data_o :
+                      cdt_sel  ? cdt_data_o  : 32'h0;
+
+   assign leds = ~leds_data_o[5:0]; // Onboard LEDs
+
+   assign pins = leds_data_o[2:0]; // I/O pins on Tang Nano 9K
+
+   reset_control reset_controller
+     (
+      .clk(clk),
+      .reset_button_n(reset_button_n),
+      .reset_n(reset_n)
+      );
+
+   uart_wrap uart
+     (
+      .clk(clk),
+      .reset_n(reset_n),
+      .uart_tx(uart_tx),
+      .uart_rx(uart_rx),
+      .uart_sel(uart_sel),
+      .addr(mem_addr[3:0]),
+      .uart_wstrb(mem_wstrb),
+      .uart_di(mem_wdata),
+      .uart_do(uart_data_o),
+      .uart_ready(uart_ready)
+      );
+
+   countdown_timer cdt
+     (
+      .clk(clk),
+      .reset_n(reset_n),
+      .cdt_sel(cdt_sel),
+      .cdt_data_i(mem_wdata),
+      .we(mem_wstrb),
+      .cdt_ready(cdt_ready),
+      .cdt_data_o(cdt_data_o)
+      );
+
+   sram #(.SRAM_ADDR_WIDTH(SRAM_ADDR_WIDTH)) memory
+     (
+      .clk(clk),
+      .reset_n(reset_n),
+      .sram_sel(sram_sel),
+      .wstrb(mem_wstrb),
+      .addr(mem_addr[SRAM_ADDR_WIDTH + 1:0]),
+      .sram_data_i(mem_wdata),
+      .sram_ready(sram_ready),
+      .sram_data_o(sram_data_o)
+      );
+   
+   tang_leds soc_leds
+     (
+      .clk(clk),
+      .reset_n(reset_n),
+      .leds_sel(leds_sel),
+      .leds_data_i(mem_wdata[5:0]),
+      .we(mem_wstrb[0]),
+      .leds_ready(leds_ready),
+      .leds_data_o(leds_data_o)
+      );
+
+   picorv32
+     #(
+       .STACKADDR(STACKADDR),
+       .PROGADDR_RESET(PROGADDR_RESET),
+       .PROGADDR_IRQ(PROGADDR_IRQ),
+       .BARREL_SHIFTER(BARREL_SHIFTER),
+       .COMPRESSED_ISA(ENABLE_COMPRESSED),
+       .ENABLE_MUL(ENABLE_MUL),
+       .ENABLE_DIV(ENABLE_DIV),
+       .ENABLE_FAST_MUL(ENABLE_FAST_MUL),
+       .ENABLE_IRQ(1),
+       .ENABLE_IRQ_QREGS(ENABLE_IRQ_QREGS)
+       ) cpu
+       (
+        .clk         (clk),
+        .resetn      (reset_n),
+        .mem_valid   (mem_valid),
+        .mem_instr   (mem_instr),
+        .mem_ready   (mem_ready),
+        .mem_addr    (mem_addr),
+        .mem_wdata   (mem_wdata),
+        .mem_wstrb   (mem_wstrb),
+        .mem_rdata   (mem_rdata),
+        .irq         ('b0)
+        );
+
+endmodule // top
+
