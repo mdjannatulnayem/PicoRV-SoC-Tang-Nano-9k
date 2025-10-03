@@ -1,0 +1,53 @@
+{
+ "Device" : "GW1NR-9C",
+ "Files" : [
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/countdown_timer.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/gowin_rpll/gowin_rpll.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/picorv32.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/reset.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/simpleuart.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/sram.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/sram8bit.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/tang_nano_9k_leds.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/top.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/src/uart_wrap.v",
+   "Type" : "verilog"
+  }
+ ],
+ "IncludePath" : [
+
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "C:/Users/Md. Jannatul Nayem/Downloads/picorv32-infer_sram/picorv32-infer_sram/impl/temp/rtl_parser.result",
+ "Top" : "top",
+ "VerilogStd" : "verilog_2001",
+ "VhdlStd" : "vhdl_93"
+}

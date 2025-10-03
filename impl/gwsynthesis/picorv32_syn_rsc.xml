@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="top" Lut="155" T_Register="828(0)" T_Alu="444(0)" T_Lut="1860(155)" T_Bsram="6(0)">
+ <SubModule name="pll"/>
+ <SubModule name="reset_controller" Register="6" Alu="6" Lut="3" T_Register="6(6)" T_Alu="6(6)" T_Lut="3(3)"/>
+ <SubModule name="uart" Lut="4" T_Register="131(0)" T_Alu="124(0)" T_Lut="100(4)">
+  <SubModule name="uart" Register="131" Alu="124" Lut="96" T_Register="131(131)" T_Alu="124(124)" T_Lut="96(96)"/>
+ </SubModule>
+ <SubModule name="cdt" Register="34" Lut="74" T_Register="34(34)" T_Lut="74(74)"/>
+ <SubModule name="memory" Register="1" Lut="1" T_Register="1(1)" T_Lut="1(1)" T_Bsram="4(0)">
+  <SubModule name="gmem3" Bsram="1" T_Bsram="1(1)"/>
+  <SubModule name="gmem2" Bsram="1" T_Bsram="1(1)"/>
+  <SubModule name="gmem1" Bsram="1" T_Bsram="1(1)"/>
+  <SubModule name="gmem0" Bsram="1" T_Bsram="1(1)"/>
+ </SubModule>
+ <SubModule name="soc_leds" Register="6" Lut="2" T_Register="6(6)" T_Lut="2(2)"/>
+ <SubModule name="cpu" Register="650" Alu="314" Lut="1525" Bsram="2" T_Register="650(650)" T_Alu="314(314)" T_Lut="1525(1525)" T_Bsram="2(2)"/>
+</Module>

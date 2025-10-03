@@ -1,2 +1,31 @@
-# PicoRV_SoC_Tang_Nano_9k
-Using the Gowin GW1NR-9 FPGA to prototype a simple RISC-V SOC with SRAM, LED driver, countdown timer and UART controller for education purposes with Gowin EDA tools and Verilog
+This directory contains a simple SoC that uses the risc-v (32-bit)
+core from https://github.com/YosysHQ/picorv32.  File picorv32.v is
+from there.  It is the core.
+
+File top.v is the top level module and integrates the SoC's
+components which are:
+
+* The risc-v core.
+* 8192 bytes of SRAM memory.
+* A small reset controller.
+* A UART (wrapper around the simpleuart from
+  https://github.com/YosysHQ/picorv32).
+* An LED driver that supports read and write.
+* A 32-bit count-down timer that can be read and written.
+  It counts down to zero and stops.
+
+The project targets the Tang Nano 9K FPGA development board that
+contains a Gowin GW1NR-9LV FPGA.  It is intended to be very
+simple and direct.  There are no integration abstractions.
+
+It was built using the educational version of the Gowin IDE and
+tool chain, V1.9.11 Education Build(81398).
+
+The Gowin IDE should build it.  See the README in directory c_code for
+information on how to build the software.  The program already in
+mem_init.v prints stuff and causes the LEDs on the board to count.  S1
+is the reset button.  Serial port: 115200, no parity, no flow control.
+
+The SRAM is initialized by the C code and then the Verilog build
+process.  This is how the software is "loaded".  See README in
+the c_code directory.
