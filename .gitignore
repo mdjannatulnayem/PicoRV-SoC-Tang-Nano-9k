@@ -1,0 +1,6 @@
+# Gowin project files 
+picorv32.gprj
+picorv32.gprj.user
+
+# Synthesis and Implementation outputs
+impl/**

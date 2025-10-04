@@ -9,14 +9,14 @@
 
    1. ../src/sram_addr_width.v
 
-      This file contains the line
+    This file contains the line
 
-         parameter SRAM_ADDR_WIDTH = sram_addr_width;
+    parameter SRAM_ADDR_WIDTH = sram_addr_width;
 
-      and is used to set this Verilog parameter.
+    and is used to set this Verilog parameter.
 
    2. ../src/mem_initX.ini, where X = 0, 1, 2, 3.
-       File mem_init0.ini contains the least significant byte.
+    File mem_init0.ini contains the least significant byte.
 
    See the Makefile.
 */
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
   sram_addr_width = atoi(argv[1]);
   if (sram_addr_width <= 0) {
-    fprintf(stderr, "sram_addr_width must be posiive\n");
+    fprintf(stderr, "sram_addr_width must be positive\n");
     exit(EXIT_FAILURE);
   }
 
@@ -54,7 +54,6 @@ int main(int argc, char **argv)
   }
 
   for (i = 0; i < 4; i++) {
-
     sprintf(fname, "../src/mem_init%d.ini", i);
     
     fp_out[i] = fopen(fname, "wb");
