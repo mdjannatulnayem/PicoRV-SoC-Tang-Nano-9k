@@ -74,7 +74,7 @@ module top (
    wire [31:0]                uart_data_o;
    wire                       uart_ready;
 
-   // Reduce clock from 27 to 5 MHz to help Gowin Analysis Oscilloscope
+   // Reduce clock from 27 to 5.4 MHz
    Gowin_rPLL pll (
       .clkout(clk), //output clkout
       .clkin(clk_in) //input clkin
