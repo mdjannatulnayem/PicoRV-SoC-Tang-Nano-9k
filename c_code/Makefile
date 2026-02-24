@@ -23,7 +23,8 @@ SRAM_ADDR_WIDTH = 11
 COMMONFLAGS = -march=rv32i2p0 -mabi=ilp32
 CFLAGS = -mno-save-restore $(COMMONFLAGS) -nostartfiles -nostdlib -static -O1
 ASFLAGS = --defsym SRAM_ADDR_WIDTH=$(SRAM_ADDR_WIDTH) $(COMMONFLAGS)
-LIBS = /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a
+# LIBS = /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a # on Linux
+LIBS = -lgcc # on Windows with MSYS2
 
 CC = riscv64-unknown-elf-gcc
 OBJCOPY = riscv64-unknown-elf-objcopy
